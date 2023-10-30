@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   My AI Meeting
+  </title>
+ </head>
+ <body>
+  <a href="#" style="float: right; margin-right: 10px;">
+   Sign Up
+  </a>
+  <a href="#" style="float: right; margin-right: 50px;">
+   Log In Here
+  </a>
+  <div style="max-width: 800px; margin: 0 auto; padding-left: 50px; padding-right: 50px;">
+   <h1 style="text-align: center; margin-bottom: 50px; font-weight: bold;">
+    My AI Meeting
+   </h1>
+   <h2 style=" font-size: 14pt; margin-bottom: 50px; font-weight: normal;">
+    🎙️ Record a Meeting
+   </h2>
+   <button id="startRecording">
+    Start Recording
+   </button>
+   <button id="stopRecording" style="margin-left: 10px;">
+    Stop Recording
+   </button>
+   <form action="#" enctype="multipart/form-data" method="POST">
+    <h2 style="margin-top: 50px; margin-bottom: 50px; font-size: 14pt; font-weight: normal;">
+     Upload your transcript file
+    </h2>
+    <label for="transcriptFile">
+     Upload your transcript file:
+    </label>
+    <input id="transcriptFile" name="transcriptFile" type="file"/>
+    <br/>
+    <br/>
+    <label for="meetingType" style="font-size: 1.5em; margin-bottom: 50px; font-size: 14pt; font-weight: normal;">
+     What type of meeting transcript is this?
+    </label>
+    <select id="meetingType" name="meetingType">
+     <option value="DiscoveryMeeting">
+      Discovery Meeting
+     </option>
+     <option value="ReviewMeeting">
+      Review Meeting
+     </option>
+     <option value="InvestmentPlanMeeting">
+      Investment Plan Meeting
+     </option>
+    </select>
+    <br/>
+    <br/>
+    <input type="submit" value="Submit"/>
+   </form>
+  </div>
+  <script src="script.js">
+  </script>
+ </body>
+</html>
