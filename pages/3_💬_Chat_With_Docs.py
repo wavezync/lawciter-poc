@@ -15,6 +15,7 @@ from PyPDF2 import PdfReader
 import pickle
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.schema import Document
 
 
 st.set_page_config(page_title="Chat with Documents", page_icon="💬")
@@ -46,18 +47,28 @@ def configure_retriever(files):
         # docs.extend(loader.load())
 
         text = read_pdf(temp_filepath)
-        docs.append(text)
+        # Split documents
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
+        documents = text_splitter.split_text(text=text)
+        for i, document_chunk in enumerate(documents):
+            # Define metadata for the document chunk
+            metadata = {
+                "source": file.name,  # You can include any metadata you need
+                "chunk_number": i + 1,  # Include the chunk number or any other relevant information
+                # Add more metadata fields as needed
+            }
 
-     combined_text = "\n\n".join(docs)
+            # Create a document instance for the chunk with text and metadata
+            document = Document(page_content=document_chunk, metadata=metadata)
+            docs.append(document)
+    #  combined_text = "\n\n".join(docs)
 
-    # Split documents
-     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
-     documents = text_splitter.split_text(text=combined_text)
+
     
 
     # Create embeddings and store in vectordb
      embeddings = OpenAIEmbeddings()
-     vectordb = FAISS.from_texts(documents, embeddings)
+     vectordb = FAISS.from_documents(docs, embeddings)
 
      pickle_folder = "Pickle"
      if not os.path.exists(pickle_folder):
