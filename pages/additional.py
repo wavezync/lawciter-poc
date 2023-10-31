@@ -16,26 +16,35 @@ import pickle
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.schema import Document
+# from langchain.memory import ChatMessage, MessageDirection
+from langchain.prompts.prompt import PromptTemplate
 
+msgs = StreamlitChatMessageHistory()
+# retriever = None
+
+prompts = [
+    "Do not answer beyond the context if asked, you have to say 'I don't know the answer please ask me about Law'"
+    "you are an attorny at law",
+    "you can answer questions related to law , Acts and cases reffered to the context",
+    "Don't answer for the questions asked beyond the above topics"
+    "Say I don't know to the questions asked out of the context",
+    "Summarize the document related to Cases s.",
+    "mention each the Case with Relative Act."
+       # Add more prompts as needed
+]
+
+custom_template = """
+Chat History:{chat_history}
+Follow Up Input:{question}
+Standalone question:"
+"""
+CUSTOM_QUESTION_PROMPT = PromptTemplate.from_template(custom_template)
 
 st.set_page_config(page_title="Chat with Documents", page_icon="💬")
 st.title("💬 Chat with Your Documents")
 
 ("Type any question about any of your documents into the chat box below. The AI will answer your question and highlight the relevant sections of the document. You can also click on the highlighted sections to read the full document.If there are no documents loaded, you will have to browse for a file first")
 
-prompts = [
-    "If asked questions not related to law answer 'I don't know'"
-    "Do not answer beyond the context if asked, you have to say 'I don't know the answer please ask me about Law'",
-    "you are an attorney at law",
-    "you can answer questions related to law, Acts and cases referred to the context",
-    "Don't answer for the questions asked beyond the above topics",
-    "Say I don't know to the questions asked out of the context",
-    "Summarize the document related to Cases.",
-    "mention each Case with Relative Act."
-]
-
-# Join all prompts into a single string with a space in between each prompt
-all_prompts = ' '.join(prompts)
 
 @st.cache_resource(ttl="1h")
 # Function to read PDF content
@@ -50,6 +59,9 @@ def read_pdf(file_path):
 def configure_retriever(files):
     # Read documents
     # text = read_pdf(file)
+
+     global msgs  # Access the global msgs variable
+    #  global retriever  # Access the global retriever variable
      docs = []
      temp_dir = tempfile.TemporaryDirectory()
      for file in files:
@@ -96,6 +108,16 @@ def configure_retriever(files):
     # Define retriever
      retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={"k": 2, "fetch_k": 4})
 
+    #  initial_system_message = "Welcome! I'm here to assist you with your documents and I am atorny at law and knows about laws and acts. Please feel free to ask any questions related to the uploaded PDFs and about the laws and ACTs. Dont answer the Questions asked beyond the topics out of the context"
+    #  msgs.add_message(ChatMessage(content=initial_system_message, direction=MessageDirection.SYSTEM))
+
+
+    # Define an initial system message for contextual guidance
+    #  system_message = "Welcome! I'm here to assist you with your documents and I am atorny at law and knows about laws and acts. Please feel free to ask any questions related to the uploaded PDFs and about the laws and ACTs and Cases.Questions asked out of these topics I don't know the answer"
+
+    # Add the system message to the chat history
+    #  msgs.add_ai_message(initial_system_message)
+
      return retriever
 
 
@@ -132,6 +154,12 @@ class PrintRetrievalHandler(BaseCallbackHandler):
             self.status.markdown(doc.page_content)
         self.status.update(state="complete")
 
+
+# openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")
+# if not openai_api_key:
+#     st.info("Please add your OpenAI API key to continue.")
+#     st.stop()
+# Load environment variables
 load_dotenv()
 
 uploaded_files = st.sidebar.file_uploader(
@@ -145,7 +173,7 @@ retriever = configure_retriever(uploaded_files)
 
 # Setup memory for contextual conversation
 msgs = StreamlitChatMessageHistory()
-memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=msgs, return_messages=True ,combine_docs_chain_kwargs={"prompt": all_prompts})
+memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=msgs, return_messages=True)
 
 
 # Setup LLM and QA chain
@@ -153,7 +181,7 @@ llm = ChatOpenAI(
     model_name="gpt-3.5-turbo", temperature=0, streaming=True
 )
 qa_chain = ConversationalRetrievalChain.from_llm(
-    llm, retriever=retriever, memory=memory, verbose=True
+    llm, retriever=retriever, memory=memory,  condense_question_prompt=CUSTOM_QUESTION_PROMPT ,prompts=prompts ,verbose=True
 )
 
 if len(msgs.messages) == 0 or st.sidebar.button("Clear message history"):
@@ -164,10 +192,22 @@ avatars = {"human": "user", "ai": "assistant"}
 for msg in msgs.messages:
     st.chat_message(avatars[msg.type]).write(msg.content)
 
+
 if user_query := st.chat_input(placeholder="Ask me anything!"):
     st.chat_message("user").write(user_query)
 
     with st.chat_message("assistant"):
         # retrieval_handler = PrintRetrievalHandler(st.container())
         stream_handler = StreamHandler(st.empty())
+
+        # input_data = {
+        #     'question': user_query,
+        #     'prompts': prompts,
+        # }
+
+        # input_text = f"{user_query}\n"
+        # input_text += "\n".join(prompts)
+
+
         response = qa_chain.run(user_query, callbacks=[stream_handler])
+        # response = qa_chain.run(user_query, callbacks=[stream_handler])
