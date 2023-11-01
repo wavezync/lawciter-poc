@@ -16,19 +16,30 @@ import pickle
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.schema import Document
+from langchain.prompts.prompt import PromptTemplate
+from langchain.prompts import HumanMessagePromptTemplate
+from langchain.prompts import SystemMessagePromptTemplate
+from langchain.prompts import ChatPromptTemplate
+
 
 
 st.set_page_config(page_title="Chat with Documents", page_icon="💬")
 st.title("💬 Chat with Your Documents")
 
-("Type any question about any of your documents into the chat box below. The AI will answer your question and highlight the relevant sections of the document. You can also click on the highlighted sections to read the full document.If there are no documents loaded, you will have to browse for a file first")
+("Type any question about laws I can help you to overcome your law Problems !")
 
-prompts = [
-   "You are an Attorney of law, you have to answer any questions asked from user related to law, Acts and Cases using the context "
+general_system_template = r"""Your Role is Attorney of law and you have to answer only to the questions related to law. if asked beyond law say you don't know the answer,Given a specific context, please give a short answer to the question, covering the required advices in general and then provide the names all of relevant (even if it relates a bit) products. ----  {context} ---- """
+general_user_template = "Question:``` {question}```"
+messages = [
+    SystemMessagePromptTemplate.from_template(general_system_template),
+    HumanMessagePromptTemplate.from_template(general_user_template)
 ]
+qa_prompt = ChatPromptTemplate.from_messages(messages)
+
+
 
 # Join all prompts into a single string with a space in between each prompt
-all_prompts = ' '.join(prompts)
+# all_prompts = ' '.join(prompts)
 
 @st.cache_resource(ttl="1h")
 # Function to read PDF content
@@ -138,7 +149,7 @@ retriever = configure_retriever(uploaded_files)
 
 # Setup memory for contextual conversation
 msgs = StreamlitChatMessageHistory()
-memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=msgs, return_messages=True ,combine_docs_chain_kwargs={"prompt": all_prompts})
+memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=msgs, return_messages=True ,combine_docs_chain_kwargs={"prompt": qa_prompt})
 
 
 # Setup LLM and QA chain
@@ -146,8 +157,8 @@ llm = ChatOpenAI(
     model_name="gpt-3.5-turbo", temperature=0, streaming=True
 )
 qa_chain = ConversationalRetrievalChain.from_llm(
-    llm, retriever=retriever, memory=memory, verbose=True
-)
+            llm, retriever=retriever, memory=memory, verbose=True,
+            combine_docs_chain_kwargs={"prompt": qa_prompt})
 
 if len(msgs.messages) == 0 or st.sidebar.button("Clear message history"):
     msgs.clear()
