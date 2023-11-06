@@ -51,58 +51,6 @@ def read_pdf(file_path):
         text += page.extract_text()
     return text
 
-def configure_retriever(files):
-    # Read documents
-    # text = read_pdf(file)
-     docs = []
-     temp_dir = tempfile.TemporaryDirectory()
-     for file in files:
-        temp_filepath = os.path.join(temp_dir.name, file.name)
-        with open(temp_filepath, "wb") as f:
-            f.write(file.read())
-        # loader = PyPDFLoader(temp_filepath)
-        # docs.extend(loader.load())
-
-        text = read_pdf(temp_filepath)
-        # Split documents
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
-        documents = text_splitter.split_text(text=text)
-        for i, document_chunk in enumerate(documents):
-            # Define metadata for the document chunk
-            metadata = {
-                "source": file.name,  # You can include any metadata you need
-                "chunk_number": i + 1,  # Include the chunk number or any other relevant information
-                # Add more metadata fields as needed
-            }
-
-            # Create a document instance for the chunk with text and metadata
-            document = Document(page_content=document_chunk, metadata=metadata)
-            docs.append(document)
-    #  combined_text = "\n\n".join(docs)
-
-
-    
-
-    # Create embeddings and store in vectordb
-     embeddings = OpenAIEmbeddings()
-     vectordb = FAISS.from_documents(docs, embeddings)
-
-     pickle_folder = "Pickle"
-     if not os.path.exists(pickle_folder):
-        os.mkdir(pickle_folder)
-
-     pickle_file_path = os.path.join(pickle_folder, f"{file.name}.pkl")
-
-     if not os.path.exists(pickle_file_path):
-        with open(pickle_file_path, "wb") as f:
-            pickle.dump(vectordb, f)
-
-    # Define retriever
-     retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={"k": 2, "fetch_k": 4})
-
-     return retriever
-
-
 class StreamHandler(BaseCallbackHandler):
     def __init__(self, container: st.delta_generator.DeltaGenerator, initial_text: str = ""):
         self.container = container
@@ -145,7 +93,49 @@ if not uploaded_files:
     st.info("Please upload PDF documents to continue.")
     st.stop()
 
-retriever = configure_retriever(uploaded_files)
+def configure_retriever(files):
+    # Read documents
+    # text = read_pdf(file)
+     docs = []
+     temp_dir = tempfile.TemporaryDirectory()
+     for file in files:
+        temp_filepath = os.path.join(temp_dir.name, file.name)
+        with open(temp_filepath, "wb") as f:
+            f.write(file.read())
+        # loader = PyPDFLoader(temp_filepath)
+        # docs.extend(loader.load())
+
+        text = read_pdf(temp_filepath)
+        # Split documents
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
+        documents = text_splitter.split_text(text=text)
+        for i, document_chunk in enumerate(documents):
+            # Define metadata for the document chunk
+            metadata = {
+                "source": file.name,  # You can include any metadata you need
+                "chunk_number": i + 1,  # Include the chunk number or any other relevant information
+                # Add more metadata fields as needed
+            }
+
+            # Create a document instance for the chunk with text and metadata
+            document = Document(page_content=document_chunk, metadata=metadata)
+            docs.append(document)
+
+     return docs;
+    
+docs = configure_retriever(uploaded_files);
+embeddings = OpenAIEmbeddings()
+ # Create vector
+vectorstore = FAISS.from_documents(docs, embeddings)
+
+ # Persist the vectors locally on disk
+vectorstore.save_local("faiss_index_constitution")
+
+ # Load from local storage
+persisted_vectorstore = FAISS.load_local("faiss_index_constitution", embeddings)
+
+# retriever = configure_retriever(uploaded_files)
+retriever=persisted_vectorstore.as_retriever()
 
 # Setup memory for contextual conversation
 msgs = StreamlitChatMessageHistory()
