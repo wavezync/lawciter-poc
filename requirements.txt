@@ -6,9 +6,9 @@ unstructured
 pypandoc
 pdflatex
 pdf2image
-streamlit-audiorec
-assemblyai 
-assemblyai[extras]
+# streamlit-audiorec
+# assemblyai 
+# assemblyai[extras]
 PyPDF2
 python-dotenv
 faiss-cpu
