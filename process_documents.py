@@ -5,7 +5,7 @@ from langchain.chat_models import ChatOpenAI
 import uuid
 
 # set openai api key
-os.environ["OPENAI_API_KEY"] = "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"
+# os.environ["OPENAI_API_KEY"] = "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"
 
 
 def load_document(file):
