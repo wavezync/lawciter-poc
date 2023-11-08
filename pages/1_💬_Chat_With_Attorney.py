@@ -21,7 +21,7 @@ from langchain.prompts import HumanMessagePromptTemplate
 from langchain.prompts import SystemMessagePromptTemplate
 from langchain.prompts import ChatPromptTemplate
 
-os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_API_KEY']
+os.environ["OPENAI_API_KEY"] = st.secrets["openai_key"]
 st.set_page_config(page_title="Chat with Documents", page_icon="💬")
 st.title("💬 Chat with Your Documents")
 

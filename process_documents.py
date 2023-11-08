@@ -7,7 +7,7 @@ import streamlit as st
 
 # set openai api key
 # os.environ["OPENAI_API_KEY"] = "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"
-os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_API_KEY']
+os.environ["OPENAI_API_KEY"] = st.secrets["openai_key"]
 
 def load_document(file):
     # print(type(file))
