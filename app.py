@@ -1,8 +1,8 @@
 # import streamlit as st
 # import yaml
 # import process_documents
-# from pypandoc.pandoc_download import download_pandoc
-# import pypandoc
+from pypandoc.pandoc_download import download_pandoc
+import pypandoc
 # import uuid
 # import os
 # from st_audiorec import st_audiorec
@@ -262,7 +262,7 @@ def main():
 
 
 if __name__ == "__main__":
-    # download_pandoc()
+    download_pandoc()
     # create temp directory
     if not os.path.exists("temp"):
         os.makedirs("temp")
