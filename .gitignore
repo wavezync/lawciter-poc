@@ -4,3 +4,4 @@ env
 *.pkg
 venv
 Pickle
+.env
