@@ -13,6 +13,6 @@ PyPDF2
 python-dotenv
 faiss-cpu
 streamlit-extras
-tiktoken
+tiktoken 0.5.1
 sentence-transformers
 pdfminer.six
