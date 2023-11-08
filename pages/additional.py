@@ -21,7 +21,6 @@ from langchain.prompts.prompt import PromptTemplate
 
 msgs = StreamlitChatMessageHistory()
 # retriever = None
-os.environ["OPENAI_API_KEY"] = "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"
 prompts = [
     "Do not answer beyond the context if asked, you have to say 'I don't know the answer please ask me about Law'"
     "you are an attorny at law",
