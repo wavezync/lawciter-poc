@@ -12,7 +12,6 @@ from langchain.vectorstores import DocArrayInMemorySearch
 from langchain.vectorstores import FAISS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from PyPDF2 import PdfReader
-import pickle
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.schema import Document
