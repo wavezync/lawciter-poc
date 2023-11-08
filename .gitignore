@@ -6,3 +6,4 @@ venv
 Pickle
 .env
 secrets.toml
+.streamlit
