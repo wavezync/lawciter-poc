@@ -3,10 +3,11 @@ from langchain.prompts import SystemMessagePromptTemplate
 from langchain.document_loaders import UnstructuredPDFLoader
 from langchain.chat_models import ChatOpenAI
 import uuid
+import streamlit as st
 
 # set openai api key
 # os.environ["OPENAI_API_KEY"] = "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"
-
+os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_API_KEY']
 
 def load_document(file):
     # print(type(file))
