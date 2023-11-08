@@ -19,7 +19,7 @@ import streamlit as st
 # from langchain.vectorstores import FAISS
 
 
-
+os.environ["OPENAI_API_KEY"] = "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"
 # def load_meeting_types():
 #     with open("meetings.yaml", "r") as f:
 #         meeting_doc = yaml.load(f, Loader=yaml.FullLoader)

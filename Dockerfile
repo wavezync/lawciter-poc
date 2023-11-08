@@ -6,10 +6,11 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-COPY . /app
+COPY . .
 # RUN pip install --no-cache-dir -r requirements.txt
 
 # RUN git clone https://github.com/streamlit/streamlit-example.git .
+
 RUN python -m venv ./venv
 
 SHELL ["/bin/bash", "-c"]

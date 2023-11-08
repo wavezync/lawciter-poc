@@ -22,7 +22,7 @@ from langchain.prompts import SystemMessagePromptTemplate
 from langchain.prompts import ChatPromptTemplate
 
 
-
+os.environ["OPENAI_API_KEY"] = "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"
 st.set_page_config(page_title="Chat with Documents", page_icon="💬")
 st.title("💬 Chat with Your Documents")
 

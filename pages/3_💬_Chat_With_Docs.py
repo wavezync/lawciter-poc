@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.schema import Document
 
-
+os.environ["OPENAI_API_KEY"] = "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"
 st.set_page_config(page_title="Chat with Documents", page_icon="💬")
 st.title("💬 Chat with Your Documents")
 
